@@ -2,6 +2,13 @@
 name = "pyhmeasure"
 version = "0.0.1"
 edition = "2021"
+license = "MIT"
+description = "Expose the Rust implementation of the H-Measure for assessing binary classifiers in python."
+homepage = "https://github.com/robinwiseman/pyhmeasure"
+repository = "https://github.com/robinwiseman/pyhmeasure"
+readme = "README.md"
+keywords = ["classifier", "H-Measure", "AUC", "ROC", "python"]
+authors = ["Robin D. Wiseman"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
