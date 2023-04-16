@@ -20,10 +20,55 @@ Mach Learn (2009) 77: 103–123
 <https://link.springer.com/article/10.1007/s10994-009-5119-5>
 */
 use pyo3::prelude::*;
-use pyo3::types::PyList;
+use csv::Reader;
+use std::io::BufReader;
+use std::fs::File;
 
 use hmeasure::{CostRatioDensity, HMeasure};
 use hmeasure::{BetaParams, BinaryClassScores};
+
+fn load_scores(file_path: &str) -> (Vec<f64>,Vec<f64>){
+    let file = File::open(file_path).unwrap();
+    let buf_reader = BufReader::new(file);
+    let mut reader = Reader::from_reader(buf_reader);
+
+    let mut score0 = vec![];
+    let mut score1 = vec![];
+
+    for result in reader.records() {
+        let record = result.unwrap();
+        let val1 = record.get(1).unwrap();
+        if val1.len() > 0 {
+            let val1_num = val1.parse::<f64>().unwrap();
+            score0.push(val1_num);
+        }
+
+        let val2 = record.get(2).unwrap();
+        if val2.len() > 0 {
+            let val2_num = val2.parse::<f64>().unwrap();
+            score1.push(val2_num);
+        }
+    }
+
+    (score0, score1)
+}
+
+fn get_scores(c0scores: Option<Vec<f64>>, c1scores: Option<Vec<f64>>,
+               score_path: Option<&str>) -> BinaryClassScores{
+
+    if c0scores.is_none() || c1scores.is_none() {
+            if score_path.is_none() {
+                panic!("Either scores must be provided or a path to a csv to retrieve scores")
+            } else {
+                let Some(path) = score_path else{ panic!("Problem getting the path to scores file")};
+                let (c0s, c1s) = load_scores(path);
+                BinaryClassScores { class0: c0s, class1: c1s }
+            }
+    }
+    else {
+            BinaryClassScores { class0: c0scores.unwrap(), class1: c1scores.unwrap() }
+    }
+}
 
 #[pyclass]
 pub struct PyHmeasure {
@@ -37,10 +82,11 @@ pub struct PyHmeasure {
 #[pymethods]
 impl PyHmeasure {
     #[new]
-    pub fn new(c0scores: Vec<f64>, c1scores: Vec<f64>,
-               cost_density_alpha: f64, cost_density_beta: f64) -> PyHmeasure {
-        let mut bcs = BinaryClassScores { class0: c0scores,
-                                          class1: c1scores };
+    pub fn new(cost_density_alpha: f64, cost_density_beta: f64,
+               c0scores: Option<Vec<f64>>, c1scores: Option<Vec<f64>>,
+               score_path: Option<&str>) -> PyHmeasure {
+
+        let mut bcs = get_scores(c0scores,c1scores,score_path);
         let beta_params = BetaParams { alpha: cost_density_alpha,
                                        beta: cost_density_beta };
         let crd = CostRatioDensity::new(beta_params);
@@ -55,59 +101,10 @@ impl PyHmeasure {
                     class1_score: hmr.class1_score
                 }
     }
+
     #[getter]
     fn h(&self) -> f64 {
         self.h
-    }
-    #[getter]
-    fn class0_score(&self) -> PyResult<Py<PyList>> {
-        self.vec_to_list("class0_score")
-    }
-    #[getter]
-    fn class1_score(&self) -> PyResult<Py<PyList>> {
-        self.vec_to_list("class1_score")
-    }
-    #[getter]
-    fn convex_hull(&self) -> PyResult<Py<PyList>> {
-        self.vecvec_to_list("convex_hull")
-    }
-    #[getter]
-    fn roc_curve(&self) -> PyResult<Py<PyList>> {
-        self.vecvec_to_list("roc_curve")
-    }
-    fn vec_to_list(&self, member: &str) -> PyResult<Py<PyList>> {
-        let missing= vec![0.0];
-        let vec = match member {
-            "class0_score" => &self.class0_score,
-            "class1_score" => &self.class1_score,
-            _ => &missing
-        };
-        Python::with_gil(|py| {
-            let list = PyList::empty(py);
-            for item in vec {
-                list.append(item)?;
-            }
-            Ok(list.into())
-        })
-    }
-    fn vecvec_to_list(&self, member: &str) -> PyResult<Py<PyList>> {
-        let missing= vec![vec![0.0]];
-        let vec = match member {
-            "convex_hull" => &self.convex_hull,
-            "roc_curve" => &self.roc_curve,
-            _ => &missing
-        };
-        Python::with_gil(|py| {
-            let list = PyList::empty(py);
-            for inner_vec in vec {
-                let innerlist = PyList::empty(py);
-                for item in inner_vec {
-                    innerlist.append(item)?;
-                }
-                list.append(innerlist)?;
-            }
-            Ok(list.into())
-        })
     }
 }
 

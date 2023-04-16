@@ -31,5 +31,16 @@ A simple example is as follows:
     hm = pyhmeasure.PyHmeasure(c0scores, c1scores, cost_distribution_alpha, cost_distribution_beta)
     print(f"H-Measure:{hm.h}")
 ```
-A discussion with further examples (and reference to a pure python implementation) is provided in Chapter 2 of:
+
+In practice, for large score arrays, it is faster to load the scores from file than pass them in as arguments to 
+PyHmeasure. The examples folder and tests (with benchmark tests) illustrate how to do this. For score arrays with a length of 
+around 2000 scores, illustrative benchmark comparisons look something like:
+
+![alt text](img/benchmark_comparison.png?raw=true)
+
+The Rust implementation is exposed to Python using the pyo3 crate. Within a newly created and activated python virtual environment,
+install maturin (https://github.com/PyO3/maturin) and run `maturin develop` to build this rust crate and install it as a 
+python module.
+
+A discussion of H-measure with further examples is provided in Chapter 2 of:›
 <https://github.com/robinwiseman/finML/blob/aa12845f01454c24f36f4df0d1cb6e0993ea7c7f/src/finML_2022.pdf>
