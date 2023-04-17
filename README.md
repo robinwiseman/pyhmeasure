@@ -38,9 +38,25 @@ around 2000 scores, illustrative benchmark comparisons look something like:
 
 ![alt text](img/benchmark_comparison.png?raw=true)
 
+**INSTALLATION**
+
 The Rust implementation is exposed to Python using the pyo3 crate. Within a newly created and activated python virtual environment,
 install maturin (https://github.com/PyO3/maturin) and run `maturin develop` to build this rust crate and install it as a 
-python module.
+python module:
+
+`cd your_path/to/project/pyhmeasure` : navigate to this project (after you have git cloned it to your machine)\
+`python3 -m venv .env` : create a new virtual environment\
+`source .env/bin/activate` : activate the venv\
+`pip install maturin` : install the pyo3 maturin package in the venv\
+`maturin develop` : run maturin develop on this project to create the pyhmeasure python package 
+and install it in this active venv
+
+**FURTHER READING**
 
 A discussion of H-measure with further examples is provided in Chapter 2 of:›
 <https://github.com/robinwiseman/finML/blob/aa12845f01454c24f36f4df0d1cb6e0993ea7c7f/src/finML_2022.pdf>
+
+Hand, D.J., Anagnostopoulos, C. \
+Notes on the H-measure of classifier performance. \
+Adv Data Anal Classif 17, 109–124 (2023). \
+<https://doi.org/10.1007/s11634-021-00490-3>
