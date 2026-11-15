@@ -1,6 +1,6 @@
 [package]
 name = "pyhmeasure"
-version = "0.0.1"
+version = "0.1.0"
 edition = "2021"
 license = "MIT"
 description = "Expose the Rust implementation of the H-Measure for assessing binary classifiers in python."
