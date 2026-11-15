@@ -1,0 +1,14 @@
+[build-system]
+requires = ["maturin>=1.9.4,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "pyhmeasure"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering",
+]
+# The remaining metadata is taken from Cargo.toml.
+dynamic = ["version", "description", "license", "authors", "keywords", "readme", "urls"]
