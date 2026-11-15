@@ -19,13 +19,19 @@ The H-measure was introduced by David J. Hand in the paper:
 Mach Learn (2009) 77: 103–123
 <https://link.springer.com/article/10.1007/s10994-009-5119-5>
 */
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use csv::Reader;
 use std::io::BufReader;
 use std::fs::File;
 
-use hmeasure::{CostRatioDensity, HMeasure};
+use hmeasure::{CostRatioDensity, HMeasure, HMeasureError};
 use hmeasure::{BetaParams, BinaryClassScores};
+
+// Invalid inputs (cost distribution parameters, empty classes, NaN scores) are raised as a Python ValueError.
+fn to_py_err(error: HMeasureError) -> PyErr {
+    PyValueError::new_err(error.to_string())
+}
 
 fn load_scores(file_path: &str) -> (Vec<f64>,Vec<f64>){
     let file = File::open(file_path).unwrap();
@@ -82,24 +88,25 @@ pub struct PyHmeasure {
 #[pymethods]
 impl PyHmeasure {
     #[new]
+    #[pyo3(signature = (cost_density_alpha, cost_density_beta, c0scores=None, c1scores=None, score_path=None))]
     pub fn new(cost_density_alpha: f64, cost_density_beta: f64,
                c0scores: Option<Vec<f64>>, c1scores: Option<Vec<f64>>,
-               score_path: Option<&str>) -> PyHmeasure {
+               score_path: Option<&str>) -> PyResult<PyHmeasure> {
 
-        let mut bcs = get_scores(c0scores,c1scores,score_path);
+        let bcs = get_scores(c0scores,c1scores,score_path);
         let beta_params = BetaParams { alpha: cost_density_alpha,
                                        beta: cost_density_beta };
-        let crd = CostRatioDensity::new(beta_params);
+        let crd = CostRatioDensity::new(beta_params).map_err(to_py_err)?;
         // calculate the H-Measure given the cost ratio density and scores
-        let mut hm = HMeasure::new(crd, None, None);
-        let hmr = hm.h_measure(&mut bcs);
-        PyHmeasure {
+        let mut hm = HMeasure::new(crd, None, None).map_err(to_py_err)?;
+        let hmr = hm.h_measure(&bcs).map_err(to_py_err)?;
+        Ok(PyHmeasure {
                     h: hmr.h,
                     convex_hull: hmr.convex_hull,
                     roc_curve: hmr.roc_curve,
                     class0_score: hmr.class0_score,
                     class1_score: hmr.class1_score
-                }
+                })
     }
 
     #[getter]
@@ -109,7 +116,7 @@ impl PyHmeasure {
 }
 
 #[pymodule]
-fn pyhmeasure(_py: Python, m: &PyModule) -> PyResult<()> {
+fn pyhmeasure(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyHmeasure>()?;
     Ok(())
 }
