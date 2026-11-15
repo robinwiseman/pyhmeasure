@@ -88,6 +88,7 @@ pub struct PyHmeasure {
 #[pymethods]
 impl PyHmeasure {
     #[new]
+    #[pyo3(signature = (cost_density_alpha, cost_density_beta, c0scores=None, c1scores=None, score_path=None))]
     pub fn new(cost_density_alpha: f64, cost_density_beta: f64,
                c0scores: Option<Vec<f64>>, c1scores: Option<Vec<f64>>,
                score_path: Option<&str>) -> PyResult<PyHmeasure> {
@@ -115,7 +116,7 @@ impl PyHmeasure {
 }
 
 #[pymodule]
-fn pyhmeasure(_py: Python, m: &PyModule) -> PyResult<()> {
+fn pyhmeasure(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyHmeasure>()?;
     Ok(())
 }

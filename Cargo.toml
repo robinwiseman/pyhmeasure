@@ -15,7 +15,7 @@ authors = ["Robin D. Wiseman"]
 [dependencies]
 csv = "1.2.1"
 hmeasure = "0.1.0"
-pyo3 = { version = "0.18.2", features = ["extension-module"] }
+pyo3 = "0.30.1"
 
 [lib]
 name = "pyhmeasure"

@@ -44,21 +44,21 @@ and tests illustrate both.
 The tests include benchmarks comparing this Rust implementation with a pure python implementation of the same
 algorithm (in `python_src`): both build the convex hull of the ROC curve in a single pass and integrate a Beta
 cost distribution in closed form. Illustrative results, using version 0.1.0 of the hmeasure crate, a release
-build and a Beta(2, 2) cost distribution:
+build, Python 3.13 and a Beta(2, 2) cost distribution:
 
 | 3,600 scores (2,000 + 1,600)            | Median time | Relative |
 |-----------------------------------------|------------:|---------:|
 | Rust, scores passed in                  |     0.76 ms |      1.0 |
-| Rust, scores loaded from csv            |     1.50 ms |      2.0 |
-| Python, scores passed in                |     6.58 ms |      8.7 |
-| Python, scores loaded from csv          |     7.58 ms |     10.0 |
+| Rust, scores loaded from csv            |     1.48 ms |      1.9 |
+| Python, scores passed in                |     5.88 ms |      7.8 |
+| Python, scores loaded from csv          |     6.70 ms |      8.8 |
 
 | 360,000 scores (200,000 + 160,000)      | Median time | Relative |
 |-----------------------------------------|------------:|---------:|
-| Rust, scores passed in                  |       90 ms |      1.0 |
-| Rust, scores loaded from csv            |      160 ms |      1.8 |
-| Python, scores passed in                |      953 ms |     10.6 |
-| Python, scores loaded from csv          |    1,007 ms |     11.2 |
+| Rust, scores passed in                  |       92 ms |      1.0 |
+| Rust, scores loaded from csv            |      159 ms |      1.7 |
+| Python, scores passed in                |      707 ms |      7.7 |
+| Python, scores loaded from csv          |      724 ms |      7.8 |
 
 On the 3,600 score benchmark with the scores passed in, version 0.1.0 of the hmeasure crate is about 25 times
 faster than version 0.0.5, which the previous version of this wrapper used (0.76 ms against 19.8 ms). Absolute timings depend on the machine; the ratios are the
@@ -72,7 +72,8 @@ below and run pytest from the root of the project:
 
 **INSTALLATION**
 
-The Rust implementation is exposed to Python using the pyo3 crate. Within a newly created and activated python virtual environment,
+The Rust implementation is exposed to Python using the pyo3 crate, which requires Python 3.9 or later, Rust 1.85 or later
+and maturin 1.9.4 or later. Within a newly created and activated python virtual environment,
 install maturin (https://github.com/PyO3/maturin) and run `maturin develop --release` to build this rust crate and install it as a 
 python module:
 
