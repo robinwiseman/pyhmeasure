@@ -1,0 +1,14 @@
+name: hmeasure-benchmark
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.11
+  - pyhmeasure
+  - numpy
+  - scipy
+  - scikit-learn
+  - pytest
+  - pytest-benchmark
+  - pip
+  - pip:
+      - hmeasure==0.1.6
